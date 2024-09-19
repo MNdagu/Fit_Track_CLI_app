@@ -1,34 +1,22 @@
+#exercise.py
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Float, Date, DateTime, func
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
-from setup import Base, get_session
-from datetime import datetime
+from setup import Base
 
 class Exercise(Base):
     __tablename__ = 'exercises'
     
     id = Column(Integer, primary_key=True)
-    workout_id = Column(Integer, ForeignKey('workouts.id'))
-    exercise_name = Column(String)
-    sets = Column(Integer)
-    reps = Column(Integer)
-    weight = Column(Float)
-    created_at = Column(DateTime, default=func.now())
-
+    workout_id = Column(Integer, ForeignKey('workouts.id'), nullable=False)
+    exercise_name = Column(String, nullable=False)
+    sets = Column(Integer, nullable=False)
+    reps = Column(Integer, nullable=False)
+    weight = Column(Integer, nullable=False)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    
     workout = relationship('Workout', back_populates='exercises')
-
-    def save(self):
-        session = get_session()
-        session.add(self)
-        session.commit()
-
-    @classmethod
-    def find_by_workout(cls, workout_id):
-        session = get_session()
-        return session.query(cls).filter_by(workout_id=workout_id).all()
-
-    @classmethod
-    def delete(cls, exercise_id):
-        session = get_session()
-        session.query(cls).filter_by(id=exercise_id).delete()
-        session.commit()
+    
+    def __repr__(self):
+        return (f"<Exercise(id={self.id}, workout_id={self.workout_id}, name='{self.exercise_name}', "
+                f"sets={self.sets}, reps={self.reps}, weight={self.weight})>")

@@ -1,25 +1,18 @@
-# cli.py
+#cli.py
 
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-# from models.user import User
+from datetime import datetime
+from setup import get_session
+from user import User
 from workout import Workout
 from exercise import Exercise
 from meal import Meal
-# from models.report import Report
 from water import WaterIntake
-# from models.setup import get_session
-from datetime import datetime
-
-from setup import get_session, create_tables
+from report import Report
 
 
-
-# Function Definitions
-
+# User Functions
 def create_user():
-    from user import User
-
     try:
         username = input("Enter username: ").strip()
         if not username:
@@ -34,9 +27,8 @@ def create_user():
     except SQLAlchemyError as e:
         print(f"Error creating user: {e}")
 
-def view_all_users():
-    from user import User
 
+def view_all_users():
     try:
         with get_session() as session:
             users = session.query(User).all()
@@ -48,17 +40,17 @@ def view_all_users():
     except SQLAlchemyError as e:
         print(f"Error viewing users: {e}")
 
-def find_user_by_id():
-    from user import User
 
+def find_user_by_id():
     try:
         user_id = input("Enter user ID: ").strip()
         if not user_id.isdigit():
             print("Invalid ID. Please enter a numeric value.")
             return
 
+        user_id = int(user_id)
         with get_session() as session:
-            user = session.query(User).filter_by(id=int(user_id)).first()
+            user = session.query(User).filter_by(id=user_id).first()
             if user:
                 print(f"ID: {user.id}, Username: {user.username}")
             else:
@@ -66,16 +58,17 @@ def find_user_by_id():
     except SQLAlchemyError as e:
         print(f"Error finding user: {e}")
 
+
 def delete_user():
-    from user import User
     try:
         user_id = input("Enter user ID to delete: ").strip()
         if not user_id.isdigit():
             print("Invalid ID. Please enter a numeric value.")
             return
 
+        user_id = int(user_id)
         with get_session() as session:
-            user = session.query(User).filter_by(id=int(user_id)).first()
+            user = session.query(User).filter_by(id=user_id).first()
             if user:
                 session.delete(user)
                 session.commit()
@@ -85,33 +78,32 @@ def delete_user():
     except SQLAlchemyError as e:
         print(f"Error deleting user: {e}")
 
+
+# Workout Functions
 def add_workout():
-    session = get_session()
-
     try:
-        user_id = int(input("Enter user ID: "))
-        workout_type = input("Enter workout type: ")
-        workout_date_str = input("Enter workout date (YYYY-MM-DD): ")
+        user_id = input("Enter user ID: ").strip()
+        if not user_id.isdigit():
+            print("Invalid ID. Please enter a numeric value.")
+            return
 
-        # Convert the date string to a date object
-        workout_date = datetime.strptime(workout_date_str, "%Y-%m-%d").date()
+        user_id = int(user_id)
+        workout_type = input("Enter workout type: ").strip()
+        workout_date_str = input("Enter workout date (YYYY-MM-DD): ").strip()
+        try:
+            workout_date = datetime.strptime(workout_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            print("Invalid date format. Please enter in YYYY-MM-DD format.")
+            return
 
-        # Create a new Workout instance
-        new_workout = Workout(
-            user_id=user_id,
-            workout_type=workout_type,
-            workout_date=workout_date
-        )
-
-        # Add and commit the new workout
-        session.add(new_workout)
-        session.commit()
-        print("Workout added successfully.")
+        with get_session() as session:
+            new_workout = Workout(user_id=user_id, workout_type=workout_type, workout_date=workout_date)
+            session.add(new_workout)
+            session.commit()
+            print("Workout added successfully.")
     except Exception as e:
-        session.rollback()
         print(f"Error adding workout: {e}")
-    finally:
-        session.close()
+
 
 def view_workouts():
     try:
@@ -125,6 +117,8 @@ def view_workouts():
     except SQLAlchemyError as e:
         print(f"Error viewing workouts: {e}")
 
+
+# Exercise Functions
 def add_exercise():
     try:
         workout_id = input("Enter workout ID: ").strip()
@@ -132,20 +126,29 @@ def add_exercise():
             print("Invalid ID. Please enter a numeric value.")
             return
 
+        workout_id = int(workout_id)
         exercise_name = input("Enter exercise name: ").strip()
-        sets = int(input("Enter number of sets: ").strip())
-        reps = int(input("Enter number of reps per set: ").strip())
-        weight = float(input("Enter weight (in kg): ").strip())
+        sets_str = input("Enter number of sets: ").strip()
+        reps_str = input("Enter number of reps per set: ").strip()
+        weight_str = input("Enter weight (in kg): ").strip()
+
+        # Validate numeric inputs
+        try:
+            sets = int(sets_str)
+            reps = int(reps_str)
+            weight = float(weight_str)
+        except ValueError:
+            print("Invalid input. Please enter valid numbers for sets, reps, and weight.")
+            return
 
         with get_session() as session:
-            exercise = Exercise(workout_id=int(workout_id), exercise_name=exercise_name, sets=sets, reps=reps, weight=weight)
+            exercise = Exercise(workout_id=workout_id, exercise_name=exercise_name, sets=sets, reps=reps, weight=weight)
             session.add(exercise)
             session.commit()
             print("Exercise added successfully.")
-    except ValueError:
-        print("Invalid input. Please enter numerical values correctly.")
     except SQLAlchemyError as e:
         print(f"Error adding exercise: {e}")
+
 
 def view_exercises():
     try:
@@ -154,16 +157,20 @@ def view_exercises():
             print("Invalid ID. Please enter a numeric value.")
             return
 
+        workout_id = int(workout_id)
         with get_session() as session:
-            exercises = session.query(Exercise).filter_by(workout_id=int(workout_id)).all()
+            exercises = session.query(Exercise).filter_by(workout_id=workout_id).all()
             if exercises:
                 for exercise in exercises:
-                    print(f"ID: {exercise.id}, Workout ID: {exercise.workout_id}, Name: {exercise.exercise_name}, Sets: {exercise.sets}, Reps: {exercise.reps}, Weight: {exercise.weight}")
+                    print(f"ID: {exercise.id}, Workout ID: {exercise.workout_id}, Name: {exercise.exercise_name}, "
+                          f"Sets: {exercise.sets}, Reps: {exercise.reps}, Weight: {exercise.weight}")
             else:
                 print("No exercises found for this workout.")
     except SQLAlchemyError as e:
         print(f"Error viewing exercises: {e}")
 
+
+# Meal Functions
 def log_meal():
     try:
         user_id = input("Enter user ID: ").strip()
@@ -171,21 +178,31 @@ def log_meal():
             print("Invalid ID. Please enter a numeric value.")
             return
 
+        user_id = int(user_id)
         meal_type = input("Enter meal type: ").strip()
-        calories = float(input("Enter calories: ").strip())
-        protein = float(input("Enter protein (g): ").strip())
-        carbs = float(input("Enter carbs (g): ").strip())
-        fats = float(input("Enter fats (g): ").strip())
+        calories_str = input("Enter calories: ").strip()
+        protein_str = input("Enter protein (g): ").strip()
+        carbs_str = input("Enter carbs (g): ").strip()
+        fats_str = input("Enter fats (g): ").strip()
+
+        # Validate numeric inputs
+        try:
+            calories = float(calories_str)
+            protein = float(protein_str)
+            carbs = float(carbs_str)
+            fats = float(fats_str)
+        except ValueError:
+            print("Invalid input. Please enter valid numbers for calories, protein, carbs, and fats.")
+            return
 
         with get_session() as session:
-            meal = Meal(user_id=int(user_id), meal_type=meal_type, calories=calories, protein=protein, carbs=carbs, fats=fats)
+            meal = Meal(user_id=user_id, meal_type=meal_type, calories=calories, protein=protein, carbs=carbs, fats=fats)
             session.add(meal)
             session.commit()
             print("Meal logged successfully.")
-    except ValueError:
-        print("Invalid input. Please enter numerical values correctly.")
     except SQLAlchemyError as e:
         print(f"Error logging meal: {e}")
+
 
 def view_meal_history():
     try:
@@ -193,28 +210,45 @@ def view_meal_history():
             meals = session.query(Meal).all()
             if meals:
                 for meal in meals:
-                    print(f"ID: {meal.id}, User ID: {meal.user_id}, Type: {meal.meal_type}, Calories: {meal.calories}, Protein: {meal.protein}, Carbs: {meal.carbs}, Fats: {meal.fats}")
+                    print(f"ID: {meal.id}, User ID: {meal.user_id}, Type: {meal.meal_type}, Calories: {meal.calories}, "
+                          f"Protein: {meal.protein}, Carbs: {meal.carbs}, Fats: {meal.fats}")
             else:
                 print("No meal history found.")
     except SQLAlchemyError as e:
         print(f"Error viewing meal history: {e}")
 
+
+# Water Intake Functions
 def log_water_intake():
-    user_id = int(input("Enter user ID: "))
-    date_str = input("Enter date (YYYY-MM-DD): ")
-    amount = float(input("Enter amount of water (in liters): "))
-
     try:
-        # Convert date string to date object
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
-        
-        # Create and save WaterIntake instance
-        water_intake = WaterIntake(user_id=user_id, date=date_obj, amount=amount)
-        water_intake.save()
-        print("Water intake logged successfully.")
+        user_id = input("Enter user ID: ").strip()
+        if not user_id.isdigit():
+            print("Invalid ID. Please enter a numeric value.")
+            return
 
-    except ValueError as e:
-        print(f"Error: {e}")
+        user_id = int(user_id)
+        date_str = input("Enter date (YYYY-MM-DD): ").strip()
+        try:
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            print("Invalid date format. Please enter in YYYY-MM-DD format.")
+            return
+
+        amount_str = input("Enter amount of water (in liters): ").strip()
+        try:
+            amount = float(amount_str)
+        except ValueError:
+            print("Invalid input. Please enter a valid number for water amount.")
+            return
+
+        with get_session() as session:
+            water_intake = WaterIntake(user_id=user_id, date=date_obj, amount=amount)
+            session.add(water_intake)
+            session.commit()
+            print("Water intake logged successfully.")
+    except SQLAlchemyError as e:
+        print(f"Error logging water intake: {e}")
+
 
 def view_water_intake():
     try:
@@ -228,8 +262,9 @@ def view_water_intake():
     except SQLAlchemyError as e:
         print(f"Error viewing water intake: {e}")
 
+
+# Report Function
 def generate_report():
-    from report import Report
     try:
         user_id = input("Enter user ID for report: ").strip()
         if not user_id.isdigit():
@@ -237,20 +272,15 @@ def generate_report():
             return
 
         user_id = int(user_id)
-        
-        # Using a session context manager
         with get_session() as session:
             report = Report(user_id=user_id)
-            # Generate report data
             report_data = report.generate()
             print(report_data)
-    
     except SQLAlchemyError as e:
         print(f"Error generating report: {e}")
 
 
 # Menu Functions
-
 def main_menu():
     while True:
         print("\nFitness Tracker CLI")
@@ -273,10 +303,10 @@ def main_menu():
         elif choice == '5':
             generate_report()
         elif choice == '6':
-            print("Exiting the application.")
+            print("Exiting...")
             break
         else:
-            print("Invalid choice. Please select a valid option.")
+            print("Invalid choice. Please try again.")
 
 
 def user_menu():
@@ -300,7 +330,7 @@ def user_menu():
         elif choice == '5':
             break
         else:
-            print("Invalid choice. Please select a valid option.")
+            print("Invalid choice. Please try again.")
 
 
 def workout_menu():
@@ -342,7 +372,7 @@ def meal_menu():
         elif choice == '3':
             break
         else:
-            print("Invalid choice. Please select a valid option.")
+            print("Invalid choice. Please try again.")
 
 
 def water_menu():
@@ -360,9 +390,8 @@ def water_menu():
         elif choice == '3':
             break
         else:
-            print("Invalid choice. Please select a valid option.")
+            print("Invalid choice. Please try again.")
 
 
-# Run the Application
 if __name__ == "__main__":
     main_menu()
