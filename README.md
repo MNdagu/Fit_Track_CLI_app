@@ -3,6 +3,11 @@
 <h2>Overview</h2>
 <p>The <strong>Fitness Tracker App</strong> is a command-line interface (CLI) application designed to help users track their fitness journey. It allows users to log workouts, exercises, meals, and water intake, and generate detailed reports of their progress. The app is built using <strong>Python</strong>, with <strong>SQLite</strong> as the database and <strong>SQLAlchemy</strong> as the Object Relational Mapping (ORM) tool.</p>
 
+<video width="400" controls>
+  <source src="presentation3.mp4" type="video/mp4">
+  Project Presentation
+</video>
+
 <h2>Features</h2>
 <ul>
     <li><strong>User Management</strong>: Create and manage users.</li>
@@ -48,6 +53,10 @@ cd Fit_Track_CLI_app</code></pre>
 </ol>
 
 <h2>Database Models</h2>
+
+![Alt text](dbdiagram.png)
+
+
 <p>The app uses the following database tables:</p>
 <ul>
     <li><strong>Users</strong>: Stores user information.</li>
@@ -92,3 +101,5 @@ cd Fit_Track_CLI_app</code></pre>
 
 <h2>License</h2>
 <p>This project is licensed under the MIT License.</p>
+
+
