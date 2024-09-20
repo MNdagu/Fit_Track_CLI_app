@@ -54,7 +54,7 @@ cd Fit_Track_CLI_app</code></pre>
 
 <h2>Database Models</h2>
 
-![Alt text](dbdiagram.png)
+![db diagram](dbdiagram.png)
 
 
 <p>The app uses the following database tables:</p>
