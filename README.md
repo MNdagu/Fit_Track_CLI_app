@@ -68,9 +68,11 @@ cd Fit_Track_CLI_app</code></pre>
     </li>
     <li><strong>Workout Commands</strong>:
         <ul>
-            <li>Log a new workout</li>
-            <li>View workout history</li>
-            <li>Add exercises to a workout</li>
+            <li> Add Workout </li>
+            <li> View Workouts</li>
+            <li> Add Exercise</li>
+            <li> View Exercises</li>
+            <li> Back to Main Menu</li>
         </ul>
     </li>
     <li><strong>Meal Commands</strong>:
