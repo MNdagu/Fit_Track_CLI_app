@@ -9,6 +9,7 @@ from exercise import Exercise
 from meal import Meal
 from water import WaterIntake
 from report import Report
+from tabulate import tabulate
 
 
 # User Functions
@@ -33,8 +34,9 @@ def view_all_users():
         with get_session() as session:
             users = session.query(User).all()
             if users:
-                for user in users:
-                    print(f"ID: {user.id}, Username: {user.username}")
+                user_data = [(user.id, user.username) for user in users]
+                headers = ["ID", "Username"]
+                print(tabulate(user_data, headers=headers, tablefmt="grid"))
             else:
                 print("No users found.")
     except SQLAlchemyError as e:
@@ -52,7 +54,9 @@ def find_user_by_id():
         with get_session() as session:
             user = session.query(User).filter_by(id=user_id).first()
             if user:
-                print(f"ID: {user.id}, Username: {user.username}")
+                user_data = [(user.id, user.username)]
+                headers = ["ID", "Username"]
+                print(tabulate(user_data, headers=headers, tablefmt="grid"))
             else:
                 print("User not found.")
     except SQLAlchemyError as e:
@@ -110,8 +114,9 @@ def view_workouts():
         with get_session() as session:
             workouts = session.query(Workout).all()
             if workouts:
-                for workout in workouts:
-                    print(f"ID: {workout.id}, User ID: {workout.user_id}, Type: {workout.workout_type}, Date: {workout.workout_date}")
+                workout_data = [(workout.id, workout.user_id, workout.workout_type, workout.workout_date) for workout in workouts]
+                headers = ["ID", "User ID", "Workout Type", "Date"]
+                print(tabulate(workout_data, headers=headers, tablefmt="grid"))
             else:
                 print("No workouts found.")
     except SQLAlchemyError as e:
@@ -161,9 +166,10 @@ def view_exercises():
         with get_session() as session:
             exercises = session.query(Exercise).filter_by(workout_id=workout_id).all()
             if exercises:
-                for exercise in exercises:
-                    print(f"ID: {exercise.id}, Workout ID: {exercise.workout_id}, Name: {exercise.exercise_name}, "
-                          f"Sets: {exercise.sets}, Reps: {exercise.reps}, Weight: {exercise.weight}")
+                exercise_data = [(exercise.id, exercise.workout_id, exercise.exercise_name, exercise.sets, exercise.reps, exercise.weight) 
+                                 for exercise in exercises]
+                headers = ["ID", "Workout ID", "Exercise Name", "Sets", "Reps", "Weight"]
+                print(tabulate(exercise_data, headers=headers, tablefmt="grid"))
             else:
                 print("No exercises found for this workout.")
     except SQLAlchemyError as e:
@@ -209,9 +215,10 @@ def view_meal_history():
         with get_session() as session:
             meals = session.query(Meal).all()
             if meals:
-                for meal in meals:
-                    print(f"ID: {meal.id}, User ID: {meal.user_id}, Type: {meal.meal_type}, Calories: {meal.calories}, "
-                          f"Protein: {meal.protein}, Carbs: {meal.carbs}, Fats: {meal.fats}")
+                meal_data = [(meal.id, meal.user_id, meal.meal_type, meal.calories, meal.protein, meal.carbs, meal.fats)
+                             for meal in meals]
+                headers = ["ID", "User ID", "Meal Type", "Calories", "Protein (g)", "Carbs (g)", "Fats (g)"]
+                print(tabulate(meal_data, headers=headers, tablefmt="grid"))
             else:
                 print("No meal history found.")
     except SQLAlchemyError as e:
@@ -255,8 +262,9 @@ def view_water_intake():
         with get_session() as session:
             water_intakes = session.query(WaterIntake).all()
             if water_intakes:
-                for water in water_intakes:
-                    print(f"ID: {water.id}, User ID: {water.user_id}, Date: {water.date}, Amount: {water.amount} liters")
+                water_data = [(water.id, water.user_id, water.date, water.amount) for water in water_intakes]
+                headers = ["ID", "User ID", "Date", "Amount (liters)"]
+                print(tabulate(water_data, headers=headers, tablefmt="grid"))
             else:
                 print("No water intake records found.")
     except SQLAlchemyError as e:

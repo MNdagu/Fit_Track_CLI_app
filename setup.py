@@ -22,7 +22,7 @@ def create_tables():
     from exercise import Exercise
     from meal import Meal
     from water import WaterIntake
-    from report import Report  # Ensure Report is imported here
+    from report import Report
     
     engine = get_engine()
     Base.metadata.create_all(engine)
