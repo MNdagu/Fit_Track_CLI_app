@@ -3,7 +3,7 @@
 <h2>Overview</h2>
 <p>The <strong>Fitness Tracker App</strong> is a command-line interface (CLI) application designed to help users track their fitness journey. It allows users to log workouts, exercises, meals, and water intake, and generate detailed reports of their progress. The app is built using <strong>Python</strong>, with <strong>SQLite</strong> as the database and <strong>SQLAlchemy</strong> as the Object Relational Mapping (ORM) tool.</p>
 
-
+<small>Presentation video</small>
 [![Presentation video](presentation.png)](https://vimeo.com/1011903747?share=copy)
 
 
